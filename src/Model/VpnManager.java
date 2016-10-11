@@ -2,6 +2,7 @@ package Model;
 
 import Helper.Common;
 import Helper.Status;
+import Helper.IVManager;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
@@ -25,6 +26,7 @@ public class VpnManager {
     private byte[] clientNonce;
     private String ip;
     private SecretKeySpec aesKey;
+    private IVManager ivManager;
 
     private VpnManager() {
         reader = null;
@@ -126,6 +128,8 @@ public class VpnManager {
         client = c;
     }
 
+    public void initIvManager() { ivManager = new IVManager(); }
+
     public byte[] getMyNonce() {
         return myNonce;
     }
@@ -148,5 +152,9 @@ public class VpnManager {
 
     public SecretKeySpec getAesKey() {
         return aesKey;
+    }
+
+    public IVManager getIvManager() {
+        return ivManager;
     }
 }

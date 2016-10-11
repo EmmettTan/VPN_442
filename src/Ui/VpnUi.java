@@ -5,6 +5,7 @@ import Model.Vpn;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Created by karui on 2016-10-03.
@@ -188,8 +189,13 @@ public class VpnUi extends Observer {
         textField.setVisible(true);
 
         JButton button = new JButton("Send");
-        button.addActionListener(e -> {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("=================");
                 new MessageSender(textField.getText()).sendText();
+                System.out.println("=================");
+            }
         });
 
         messagePanel.add(scrollPane);
