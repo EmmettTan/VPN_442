@@ -2,6 +2,7 @@ package Model;
 
 import Helper.Common;
 import Helper.Status;
+import Helper.Diffie;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -9,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.math.BigInteger;
 
 /**
  * Created by karui on 2016-10-03.
@@ -58,21 +60,28 @@ public class Server implements Runnable {
             byte[] nonce = Common.setupIdentity(clientSocket);
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
-            writer.write(nonce);
+
+            //Do the Diffie
+            Diffie serverDiffie = new Diffie();
+            int clientKey = reader.readInt();
+            writer.writeInt(serverDiffie.calPubKey().intValue());
+            BigInteger combinedKey = serverDiffie.calCombinedKey(clientKey);
+            //writer.write(nonce);
 
             // client nonce
-            byte[] clientNonce = new byte[Common.NONCE_LENGTH];
-            reader.read(clientNonce);
-            Vpn.getVpnManager().setClientNonce(clientNonce);
+            //byte[] clientNonce = new byte[Common.NONCE_LENGTH];
+            //reader.read(clientNonce);
+            //System.out.println(clientNonce);
+            //Vpn.getVpnManager().setClientNonce(clientNonce);
 
-            byte[] buffer = new byte[BUFFER_SIZE];
-            byte[] ciphertext = new byte[reader.read(buffer)];
-            System.arraycopy(buffer, 0, ciphertext, 0, ciphertext.length);
+            //byte[] buffer = new byte[BUFFER_SIZE];
+            //byte[] ciphertext = new byte[reader.read(buffer)];
+            //System.arraycopy(buffer, 0, ciphertext, 0, ciphertext.length);
 
             // TODO: check nonce here; if okay, set status to both connected; for now we just assume it's okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
