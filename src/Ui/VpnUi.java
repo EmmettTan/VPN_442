@@ -5,10 +5,6 @@ import Model.Vpn;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 /**
  * Created by karui on 2016-10-03.
@@ -97,12 +93,6 @@ public class VpnUi extends Observer {
 
         JTextField portNumField = new JTextField(15);
         portNumField.setText(DEFAULT_PORT);
-        portNumField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         portNumField.setVisible(true);
 
         portNumPanel.add(portNumLabel, BorderLayout.CENTER);
@@ -114,23 +104,14 @@ public class VpnUi extends Observer {
 
         JTextField textField = new JTextField(15);
         textField.setText(TEST_KEY);
-        textField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         textField.setVisible(true);
 
         JButton button = new JButton("Continue");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Vpn.getVpnManager().receivePort(Integer.parseInt(portNumField.getText()));
-                Vpn.getVpnManager().receiveSecret(textField.getText());
-                portNumPanel.setVisible(false);
-                identityPanel.setVisible(true);
-            }
+        button.addActionListener(e -> {
+            Vpn.getVpnManager().receivePort(Integer.parseInt(portNumField.getText()));
+            Vpn.getVpnManager().receiveSecret(textField.getText());
+            portNumPanel.setVisible(false);
+            identityPanel.setVisible(true);
         });
 
         portNumPanel.add(label, BorderLayout.CENTER);
@@ -144,22 +125,16 @@ public class VpnUi extends Observer {
         label.setForeground(new Color(51, 51, 51));
 
         JButton serverButton = new JButton("Server");
-        serverButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        serverButton.addActionListener(e -> {
                 Vpn.getVpnManager().initializeServer();
                 identityPanel.setVisible(false);
                 messagePanel.setVisible(true);
-            }
         });
 
         JButton clientButton = new JButton("Client");
-        clientButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        clientButton.addActionListener(e -> {
                 identityPanel.setVisible(false);
                 ipPanel.setVisible(true);
-            }
         });
 
         identityPanel.add(label);
@@ -169,25 +144,16 @@ public class VpnUi extends Observer {
 
     private void addIp() {
         JLabel label = new JLabel("Enter IP Address: ");
-        JTextField textField = new JTextField(15); // TODO CHECK IP LENGTH
+        JTextField textField = new JTextField(12);
         textField.setText(DEFAULT_ADDRESS);
-        textField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         textField.setVisible(true);
 
         JButton button = new JButton("Continue");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addActionListener(e -> {
                 Vpn.getVpnManager().receiveIp(textField.getText());
                 Vpn.getVpnManager().initializeClient();
                 ipPanel.setVisible(false);
                 messagePanel.setVisible(true);
-            }
         });
 
         ipPanel.add(label);
@@ -208,11 +174,8 @@ public class VpnUi extends Observer {
         textField.setVisible(true);
 
         JButton button = new JButton("Send");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addActionListener(e -> {
                 new MessageSender(textField.getText()).sendText();
-            }
         });
 
         messagePanel.add(scrollPane);
