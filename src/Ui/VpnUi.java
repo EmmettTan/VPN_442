@@ -27,6 +27,8 @@ public class VpnUi extends Observer {
     private JPanel identityPanel;
     private JPanel ipPanel;
     private JPanel messagePanel;
+    private JTextArea msgsReceived;
+    private JScrollPane scrollPane;
 
     private VpnUi() {}
 
@@ -194,6 +196,13 @@ public class VpnUi extends Observer {
     }
 
     private void addMessage() {
+        msgsReceived = new JTextArea();
+        msgsReceived.setEditable(false);
+        msgsReceived.setLineWrap(true);
+        scrollPane = new JScrollPane(msgsReceived);
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT / 2));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
         JTextField textField = new JTextField(MESSAGE_LEN);
         textField.setText("Enter your text here");
         textField.setVisible(true);
@@ -206,12 +215,13 @@ public class VpnUi extends Observer {
             }
         });
 
+        messagePanel.add(scrollPane);
         messagePanel.add(textField);
         messagePanel.add(button);
     }
 
     @Override
     public void update() {
-        System.out.println(observable.getMessage());
+        msgsReceived.append(observable.getMessage() + "\n");
     }
 }
