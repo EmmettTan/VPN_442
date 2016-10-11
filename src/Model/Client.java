@@ -23,25 +23,25 @@ public class Client implements Runnable {
     public void run() {
         try {
             byte[] nonce = Common.setupIdentity(clientSocket);
+            DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
-            writer.write(nonce);
 
             // TODO: add code to receive nonce and do diffie hell thing; if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean setSocket(String ip, int port) {
+    public void setSocket(String ip, int port) {
         try {
             clientSocket = new Socket(ip, port);
-            return true;
         } catch (IOException e) {
+            System.out.println("Failed to connect to server");
             e.printStackTrace();
-            return false;
+            System.exit(1);
         }
     }
 }

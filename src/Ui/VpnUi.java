@@ -5,6 +5,7 @@ import Model.Vpn;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Created by karui on 2016-10-03.
@@ -61,7 +62,6 @@ public class VpnUi extends Observer {
         ipPanel = new JPanel();
         messagePanel = new JPanel();
 
-        // TODO: beautify layouts
         createLeftAlignedPanel(portNumPanel);
         createLeftAlignedPanel(identityPanel);
         createLeftAlignedPanel(messagePanel);
@@ -91,16 +91,20 @@ public class VpnUi extends Observer {
         portNumLabel.setFont(new Font("Helvetica", Font.PLAIN, 24));
         portNumLabel.setForeground(new Color(51, 51, 51));
 
-        JTextField portNumField = new JTextField(15);
+        JTextField portNumField = new JTextField(5);
         portNumField.setText(DEFAULT_PORT);
         portNumField.setVisible(true);
 
         portNumPanel.add(portNumLabel, BorderLayout.CENTER);
         portNumPanel.add(portNumField);
 
-        JLabel label = new JLabel("Enter key: ");
+        JLabel label = new JLabel("Enter key ");
         label.setFont(new Font("Helvetica", Font.PLAIN, 24));
         label.setForeground(new Color(51, 51, 51));
+
+        JLabel label2 = new JLabel("must be 16 characters long: ");
+        label2.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        label2.setForeground(new Color(51, 51, 51));
 
         JTextField textField = new JTextField(15);
         textField.setText(TEST_KEY);
@@ -108,13 +112,24 @@ public class VpnUi extends Observer {
 
         JButton button = new JButton("Continue");
         button.addActionListener(e -> {
-            Vpn.getVpnManager().receivePort(Integer.parseInt(portNumField.getText()));
-            Vpn.getVpnManager().receiveSecret(textField.getText());
+            try {
+                Vpn.getVpnManager().receivePort(Integer.parseInt(portNumField.getText()));
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid port number entered.");
+                return;
+            }
+            String secret = textField.getText();
+            if (secret.length() != 16) {
+                System.out.println("Key has to be 16 characters long");
+                return;
+            }
+            Vpn.getVpnManager().receiveSecret(secret);
             portNumPanel.setVisible(false);
             identityPanel.setVisible(true);
         });
 
         portNumPanel.add(label, BorderLayout.CENTER);
+        portNumPanel.add(label2, BorderLayout.CENTER);
         portNumPanel.add(textField);
         portNumPanel.add(button);
     }
@@ -174,8 +189,13 @@ public class VpnUi extends Observer {
         textField.setVisible(true);
 
         JButton button = new JButton("Send");
-        button.addActionListener(e -> {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("=================");
                 new MessageSender(textField.getText()).sendText();
+                System.out.println("=================");
+            }
         });
 
         messagePanel.add(scrollPane);

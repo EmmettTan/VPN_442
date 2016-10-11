@@ -23,14 +23,14 @@ public class Server implements Runnable {
         System.out.println("Hi im a server");
     }
 
-    public boolean bind(int portNum) {
+    public void bind(int portNum) {
         try {
             serverSocket = new ServerSocket(portNum);
-            return true;
         } catch (IOException e) {
+            System.out.println("Failed to bind to port");
             e.printStackTrace();
+            System.exit(1);
         }
-        return false;
     }
 
     public void listen() {
@@ -58,21 +58,12 @@ public class Server implements Runnable {
             byte[] nonce = Common.setupIdentity(clientSocket);
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
-            writer.write(nonce);
-
-            // client nonce
-            byte[] clientNonce = new byte[Common.NONCE_LENGTH];
-            reader.read(clientNonce);
-            Vpn.getVpnManager().setClientNonce(clientNonce);
-
-            byte[] buffer = new byte[BUFFER_SIZE];
-            byte[] ciphertext = new byte[reader.read(buffer)];
-            System.arraycopy(buffer, 0, ciphertext, 0, ciphertext.length);
 
             // TODO: check nonce here; if okay, set status to both connected; for now we just assume it's okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Vpn.getVpnManager().terminate();
             e.printStackTrace();
         }
     }
