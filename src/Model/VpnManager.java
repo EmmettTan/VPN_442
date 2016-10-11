@@ -7,11 +7,7 @@ import Helper.IVManager;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.
@@ -73,15 +69,9 @@ public class VpnManager {
     public void initializeServer() {
         try {
             server = new Server();
-
-            if (server.bind(port)) {
-                status = Status.SeverConnected;
-                System.out.println("Magic is happening on port " + port);
-            } else {
-                System.err.println("can't connect to port; DO SOMETHING ABOUT IT; terminate application and yell at human?");
-                throw new Exception(); // TODO: throw an actual exception not generic exception
-            }
-
+            server.bind(port);
+            status = Status.SeverConnected;
+            System.out.println("Magic is happening on port " + port);
             new Thread(server).start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,12 +80,9 @@ public class VpnManager {
 
     public void initializeClient() {
         client = new Client();
-        if (client.setSocket(ip, port)) {
-            status = Status.ClientConnected;
-            new Thread(client).start();
-        } else {
-            System.out.println("connection refused; tell user");
-        }
+        client.setSocket(ip, port);
+        status = Status.ClientConnected;
+        new Thread(client).start();
     }
 
     public void terminate() {

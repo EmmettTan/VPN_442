@@ -12,7 +12,14 @@ import java.util.Arrays;
 /**
  * Created by karui on 2016-10-03.
  */
-public class MessageReceiver implements Runnable {
+public class MessageReceiver extends Observable implements Runnable {
+    private String msgReceived;
+
+    public MessageReceiver() {
+        msgReceived = "";
+        addObserver(Vpn.getVpnUi());
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -34,9 +41,11 @@ public class MessageReceiver implements Runnable {
                     ciphertextBytes = Common.setCorrectBlockLength(ciphertextBytes);
 
                     byte[] plaintextBytes = cipher.doFinal(ciphertextBytes);
+                    String plaintextString = new String(plaintextBytes, Common.ENCODING_TYPE);
 
                     System.out.println("Received ciphertext: " + ciphertextString);
-                    System.out.println("Received plaintext: " + new String(plaintextBytes, "UTF-8"));
+                    System.out.println("Received plaintext: " + plaintextString);
+                    updateMsgReceived(plaintextString);
                 }
             } catch (IOException | IllegalBlockSizeException | BadPaddingException e) {
                 e.printStackTrace();
@@ -45,5 +54,15 @@ public class MessageReceiver implements Runnable {
                 break;
             }
         }
+    }
+
+    private void updateMsgReceived(String plaintext) {
+        msgReceived = plaintext;
+        notifyAllObservers();
+    }
+
+    @Override
+    public String getMessage() {
+        return msgReceived;
     }
 }
