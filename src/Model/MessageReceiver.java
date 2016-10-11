@@ -13,6 +13,7 @@ import java.util.Arrays;
  * Created by karui on 2016-10-03.
  */
 public class MessageReceiver extends Observable implements Runnable {
+    private final int BUFFER_SIZE = 25600;
     private String msgReceived;
 
     public MessageReceiver() {
@@ -31,8 +32,6 @@ public class MessageReceiver extends Observable implements Runnable {
 
                     byte[] senderIVBytes = Arrays.copyOfRange(receivedBytes, 0, 16);
                     byte[] ciphertextBytes = Arrays.copyOfRange(receivedBytes, 16, receivedBytes.length);
-
-
                     Vpn.getVpnManager().getIvManager().setIV(senderIVBytes);
 
                     String ciphertextString = DatatypeConverter.printHexBinary(ciphertextBytes);

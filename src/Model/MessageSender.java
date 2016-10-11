@@ -23,7 +23,6 @@ public class MessageSender {
     public void sendText() {
         Status status = Vpn.getVpnManager().getStatus();
 
-
         if (status != Status.BothConnected) {
             System.out.println("tell user they need to be connected");
 

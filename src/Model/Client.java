@@ -23,8 +23,8 @@ public class Client implements Runnable {
     public void run() {
         try {
             byte[] nonce = Common.setupIdentity(clientSocket);
-            //DataOutputStream writer = Vpn.getVpnManager().getWriter();
-            //writer.write(nonce);
+            DataInputStream reader = Vpn.getVpnManager().getReader();
+            DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
             // TODO: add code to receive nonce and do diffie hell thing; if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay
