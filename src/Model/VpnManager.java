@@ -6,11 +6,7 @@ import Helper.Status;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.

@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 /**
  * Created by karui on 2016-10-03.
  */
-public class VpnUi {
+public class VpnUi extends Observer {
     private final int APP_WIDTH = 360;
     private final int APP_HEIGHT = 560;
     private final int MESSAGE_LEN = 100;
@@ -208,5 +208,10 @@ public class VpnUi {
 
         messagePanel.add(textField);
         messagePanel.add(button);
+    }
+
+    @Override
+    public void update() {
+        System.out.println(observable.getMessage());
     }
 }
