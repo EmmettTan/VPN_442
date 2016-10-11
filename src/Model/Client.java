@@ -25,8 +25,8 @@ public class Client implements Runnable {
     public void run() {
         try {
             byte[] nonce = Common.setupIdentity(clientSocket);
-            DataOutputStream writer = Vpn.getVpnManager().getWriter();
             DataInputStream reader = Vpn.getVpnManager().getReader();
+            DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
             //Do the Diffie
             Diffie clientDiffie = new Diffie();
@@ -46,13 +46,13 @@ public class Client implements Runnable {
         }
     }
 
-    public boolean setSocket(String ip, int port) {
+    public void setSocket(String ip, int port) {
         try {
             clientSocket = new Socket(ip, port);
-            return true;
         } catch (IOException e) {
+            System.out.println("Failed to connect to server");
             e.printStackTrace();
-            return false;
+            System.exit(1);
         }
     }
 }

@@ -25,8 +25,6 @@ public class Common {
 
     public static final String CIPHER_SETTINGS = "AES/CBC/NoPadding";
 
-    public static final byte[] DEFAULT_IV = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
     public static final int BLOCK_SIZE = 16;
 
     public static byte[] setupIdentity(Socket clientSocket) {
@@ -36,6 +34,7 @@ public class Common {
             Vpn.getVpnManager().setReader(reader);
             Vpn.getVpnManager().setWriter(writer);
             Vpn.getVpnManager().setNonce();
+            Vpn.getVpnManager().initIvManager();
 
             // send the nonce; should we send it as a string? i.e. writer.writeUTF(nonce.toString());
             return Vpn.getVpnManager().getMyNonce();
@@ -49,7 +48,7 @@ public class Common {
     public static Cipher getAesCipher(int opmode) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_SETTINGS);
-            IvParameterSpec iv = new IvParameterSpec(DEFAULT_IV);
+            IvParameterSpec iv = new IvParameterSpec(Vpn.getVpnManager().getIvManager().getIV());
             cipher.init(opmode, Vpn.getVpnManager().getAesKey(), iv);
             return cipher;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {

@@ -25,14 +25,14 @@ public class Server implements Runnable {
         System.out.println("Hi im a server");
     }
 
-    public boolean bind(int portNum) {
+    public void bind(int portNum) {
         try {
             serverSocket = new ServerSocket(portNum);
-            return true;
         } catch (IOException e) {
+            System.out.println("Failed to bind to port");
             e.printStackTrace();
+            System.exit(1);
         }
-        return false;
     }
 
     public void listen() {
@@ -82,6 +82,7 @@ public class Server implements Runnable {
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
         } catch (Exception e) {
+            Vpn.getVpnManager().terminate();
             e.printStackTrace();
         }
     }
