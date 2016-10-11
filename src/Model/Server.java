@@ -58,7 +58,7 @@ public class Server implements Runnable {
             byte[] nonce = Common.setupIdentity(clientSocket);
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
-            writer.write(nonce);
+            //writer.write(nonce);
 
             // client nonce
             byte[] clientNonce = new byte[Common.NONCE_LENGTH];

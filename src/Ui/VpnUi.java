@@ -202,7 +202,9 @@ public class VpnUi {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("=================");
                 new MessageSender(textField.getText()).sendText();
+                System.out.println("=================");
             }
         });
 
