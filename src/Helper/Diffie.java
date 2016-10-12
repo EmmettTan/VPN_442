@@ -12,7 +12,7 @@ public class Diffie {
     private final BigInteger G_PRIME_BASE = new BigInteger("383");
 
     private final BigInteger P_PRIME_MODULUS = new BigInteger("709");
-
+    
     private BigInteger Key;
 
     public Diffie() {
