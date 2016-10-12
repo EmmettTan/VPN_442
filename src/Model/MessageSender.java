@@ -2,7 +2,6 @@ package Model;
 
 import Helper.Common;
 import Helper.Status;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -18,7 +17,7 @@ public class MessageSender {
     String textToSend = "";
 
     public MessageSender(String textToSend) {
-        this.textToSend = textToSend;
+        this.textToSend = /* concatanate iv */textToSend;
     }
 
     public void sendText() {
@@ -32,18 +31,26 @@ public class MessageSender {
         }
         try {
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
+            byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
 
             Cipher cipher = Common.getAesCipher(Cipher.ENCRYPT_MODE);
             byte[] plaintextBytes = textToSend.getBytes(Common.ENCODING_TYPE);
+
             plaintextBytes = Common.setCorrectBlockLength(plaintextBytes);
 
             byte[] ciphertextBytes = cipher.doFinal(plaintextBytes);
-            String ciphertextString = DatatypeConverter.printHexBinary(ciphertextBytes);
+
+
+            byte[] ciphertextIVBytes = new byte[ivByteArray.length + ciphertextBytes.length];
+            System.arraycopy(ivByteArray, 0, ciphertextIVBytes, 0, ivByteArray.length);
+            System.arraycopy(ciphertextBytes, 0, ciphertextIVBytes, ivByteArray.length, ciphertextBytes.length);
+
+            String ciphertextString = DatatypeConverter.printHexBinary(ciphertextIVBytes);
 
             System.out.println("Sent plaintext: " + textToSend);
             System.out.println("Sent ciphertext: " + ciphertextString);
 
-            writer.write(ciphertextBytes);
+            writer.write(ciphertextIVBytes);
         } catch (IOException | IllegalBlockSizeException | BadPaddingException ex) {
             Vpn.getVpnManager().terminate();
             ex.printStackTrace();

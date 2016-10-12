@@ -5,15 +5,12 @@ import Model.Vpn;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 /**
  * Created by karui on 2016-10-03.
  */
-public class VpnUi {
+public class VpnUi extends Observer {
     private final int APP_WIDTH = 360;
     private final int APP_HEIGHT = 560;
     private final int MESSAGE_LEN = 100;
@@ -27,6 +24,8 @@ public class VpnUi {
     private JPanel identityPanel;
     private JPanel ipPanel;
     private JPanel messagePanel;
+    private JTextArea msgsReceived;
+    private JScrollPane scrollPane;
 
     private VpnUi() {}
 
@@ -63,7 +62,6 @@ public class VpnUi {
         ipPanel = new JPanel();
         messagePanel = new JPanel();
 
-        // TODO: beautify layouts
         createLeftAlignedPanel(portNumPanel);
         createLeftAlignedPanel(identityPanel);
         createLeftAlignedPanel(messagePanel);
@@ -93,45 +91,45 @@ public class VpnUi {
         portNumLabel.setFont(new Font("Helvetica", Font.PLAIN, 24));
         portNumLabel.setForeground(new Color(51, 51, 51));
 
-        JTextField portNumField = new JTextField(15);
+        JTextField portNumField = new JTextField(5);
         portNumField.setText(DEFAULT_PORT);
-        portNumField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         portNumField.setVisible(true);
 
         portNumPanel.add(portNumLabel, BorderLayout.CENTER);
         portNumPanel.add(portNumField);
 
-        JLabel label = new JLabel("Enter key: ");
+        JLabel label = new JLabel("Enter key ");
         label.setFont(new Font("Helvetica", Font.PLAIN, 24));
         label.setForeground(new Color(51, 51, 51));
 
+        JLabel label2 = new JLabel("must be 16 characters long: ");
+        label2.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        label2.setForeground(new Color(51, 51, 51));
+
         JTextField textField = new JTextField(15);
         textField.setText(TEST_KEY);
-        textField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         textField.setVisible(true);
 
         JButton button = new JButton("Continue");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addActionListener(e -> {
+            try {
                 Vpn.getVpnManager().receivePort(Integer.parseInt(portNumField.getText()));
-                Vpn.getVpnManager().receiveSecret(textField.getText());
-                portNumPanel.setVisible(false);
-                identityPanel.setVisible(true);
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid port number entered.");
+                return;
             }
+            String secret = textField.getText();
+            if (secret.length() != 16) {
+                System.out.println("Key has to be 16 characters long");
+                return;
+            }
+            Vpn.getVpnManager().receiveSecret(secret);
+            portNumPanel.setVisible(false);
+            identityPanel.setVisible(true);
         });
 
         portNumPanel.add(label, BorderLayout.CENTER);
+        portNumPanel.add(label2, BorderLayout.CENTER);
         portNumPanel.add(textField);
         portNumPanel.add(button);
     }
@@ -142,22 +140,16 @@ public class VpnUi {
         label.setForeground(new Color(51, 51, 51));
 
         JButton serverButton = new JButton("Server");
-        serverButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        serverButton.addActionListener(e -> {
                 Vpn.getVpnManager().initializeServer();
                 identityPanel.setVisible(false);
                 messagePanel.setVisible(true);
-            }
         });
 
         JButton clientButton = new JButton("Client");
-        clientButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        clientButton.addActionListener(e -> {
                 identityPanel.setVisible(false);
                 ipPanel.setVisible(true);
-            }
         });
 
         identityPanel.add(label);
@@ -167,25 +159,16 @@ public class VpnUi {
 
     private void addIp() {
         JLabel label = new JLabel("Enter IP Address: ");
-        JTextField textField = new JTextField(15); // TODO CHECK IP LENGTH
+        JTextField textField = new JTextField(12);
         textField.setText(DEFAULT_ADDRESS);
-        textField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
-                JTextField textField = (JTextField) e.getSource();
-                String text = textField.getText();
-            }
-        });
         textField.setVisible(true);
 
         JButton button = new JButton("Continue");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addActionListener(e -> {
                 Vpn.getVpnManager().receiveIp(textField.getText());
                 Vpn.getVpnManager().initializeClient();
                 ipPanel.setVisible(false);
                 messagePanel.setVisible(true);
-            }
         });
 
         ipPanel.add(label);
@@ -194,6 +177,13 @@ public class VpnUi {
     }
 
     private void addMessage() {
+        msgsReceived = new JTextArea();
+        msgsReceived.setEditable(false);
+        msgsReceived.setLineWrap(true);
+        scrollPane = new JScrollPane(msgsReceived);
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT / 2));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
         JTextField textField = new JTextField(MESSAGE_LEN);
         textField.setText("Enter your text here");
         textField.setVisible(true);
@@ -202,11 +192,19 @@ public class VpnUi {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("=================");
                 new MessageSender(textField.getText()).sendText();
+                System.out.println("=================");
             }
         });
 
+        messagePanel.add(scrollPane);
         messagePanel.add(textField);
         messagePanel.add(button);
+    }
+
+    @Override
+    public void update() {
+        msgsReceived.append(observable.getMessage() + "\n");
     }
 }
