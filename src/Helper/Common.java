@@ -13,6 +13,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * Created by karui on 2016-10-03.
@@ -22,7 +23,7 @@ public class Common {
 
     public static final String ENCODING_TYPE = "UTF-8";
 
-    public static final String CIPHER_SETTINGS = "AES/CBC/NoPadding";
+    public static final String CIPHER_SETTINGS = "AES/GCM/NoPadding";
 
     public static final int BLOCK_SIZE = 16;
 
@@ -46,9 +47,10 @@ public class Common {
 
     public static Cipher getAesCipher(int opmode) {
         try {
+
             Cipher cipher = Cipher.getInstance(CIPHER_SETTINGS);
-            IvParameterSpec iv = new IvParameterSpec(Vpn.getVpnManager().getIvManager().getIV());
-            cipher.init(opmode, Vpn.getVpnManager().getAesKey(), iv);
+            GCMParameterSpec gcm = new GCMParameterSpec(128, Vpn.getVpnManager().getIvManager().getIV());
+            cipher.init(opmode, Vpn.getVpnManager().getAesKey(), gcm);
             return cipher;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             // TODO: DEAL WITH THIS
