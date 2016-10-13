@@ -26,6 +26,8 @@ public class Client implements Runnable {
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
+            // use this key for DH:  Vpn.getVpnManager().getAesKey()
+
             // TODO: add code to receive nonce and do diffie hell thing; if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);

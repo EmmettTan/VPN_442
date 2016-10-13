@@ -1,5 +1,6 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
 import Helper.Status;
 
@@ -36,7 +37,7 @@ public class MessageReceiver extends Observable implements Runnable {
 
                     String ciphertextString = DatatypeConverter.printHexBinary(ciphertextBytes);
 
-                    Cipher cipher = Common.getAesCipher(Cipher.DECRYPT_MODE);
+                    Cipher cipher = Aes.getAesCipher(Cipher.DECRYPT_MODE, Vpn.getVpnManager().getSessionKey());
                     ciphertextBytes = Common.setCorrectBlockLength(ciphertextBytes);
 
                     byte[] plaintextBytes = cipher.doFinal(ciphertextBytes);

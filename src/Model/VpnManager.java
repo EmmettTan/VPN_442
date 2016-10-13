@@ -134,7 +134,7 @@ public class VpnManager {
 
     public void setSessionKey(String key) {
         try {
-            aesKey = new SecretKeySpec(key.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
+            sessionKey = new SecretKeySpec(key.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -164,6 +164,10 @@ public class VpnManager {
 
     public SecretKeySpec getAesKey() {
         return aesKey;
+    }
+
+    public SecretKeySpec getSessionKey() {
+        return sessionKey;
     }
 
     public IVManager getIvManager() {

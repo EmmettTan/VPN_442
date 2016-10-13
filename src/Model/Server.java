@@ -59,6 +59,8 @@ public class Server implements Runnable {
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
+            // use this key for DH: Vpn.getVpnManager().getAesKey()
+
             // TODO: check nonce here; if okay, set status to both connected; for now we just assume it's okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
