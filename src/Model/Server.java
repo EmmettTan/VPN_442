@@ -71,11 +71,13 @@ public class Server implements Runnable {
             Diffie diffie = new Diffie();
             BigInteger myDiffieParams = diffie.calPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();
+            byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
             byte[] encryptionTarget = Aes.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
 
-            byte[] bytesToSend = new byte[Common.NONCE_LENGTH + encryptionTarget.length];
-            System.arraycopy(nonce, 0, bytesToSend, 0, nonce.length);
-            System.arraycopy(encryptionTarget, 0, bytesToSend, nonce.length, encryptionTarget.length);
+            byte[] bytesToSend = new byte[ivByteArray.length + Common.NONCE_LENGTH + encryptionTarget.length];
+            System.arraycopy(ivByteArray, 0, bytesToSend, 0, ivByteArray.length);
+            System.arraycopy(nonce, 0, bytesToSend, ivByteArray.length, nonce.length);
+            System.arraycopy(encryptionTarget, 0, bytesToSend, ivByteArray.length + nonce.length, encryptionTarget.length);
 
             writer.write(bytesToSend);
 

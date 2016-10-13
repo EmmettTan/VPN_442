@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.
@@ -42,12 +43,17 @@ public class Client implements Runnable {
             byte[] responseFromServer = new byte[reader.available()];
             reader.readFully(responseFromServer);
 
+            // iv
+            byte[] senderIVBytes = new byte[Common.IV_LENGTH];
+            System.arraycopy(responseFromServer, 0, senderIVBytes, 0, Common.IV_LENGTH);
+            Vpn.getVpnManager().getIvManager().setIV(senderIVBytes);
+
             // unencrypted challenge from server
             byte[] serverNonce = new byte[Common.NONCE_LENGTH];
-            System.arraycopy(responseFromServer, 0, serverNonce, 0, Common.NONCE_LENGTH);
+            System.arraycopy(responseFromServer, Common.IV_LENGTH, serverNonce, 0, Common.NONCE_LENGTH);
 
-            byte[] encryptedBytesFromServer = new byte[responseFromServer.length - Common.NONCE_LENGTH];
-            System.arraycopy(responseFromServer, Common.NONCE_LENGTH, encryptedBytesFromServer, 0, responseFromServer.length - Common.NONCE_LENGTH);
+            byte[] encryptedBytesFromServer = new byte[responseFromServer.length - Common.NONCE_LENGTH - Common.IV_LENGTH];
+            System.arraycopy(responseFromServer, Common.IV_LENGTH + Common.NONCE_LENGTH, encryptedBytesFromServer, 0, responseFromServer.length - Common.NONCE_LENGTH - Common.IV_LENGTH);
             BigInteger diffieParam = Common.processDiffieResponse(encryptedBytesFromServer);
             // TODO compute diffie key
 

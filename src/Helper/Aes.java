@@ -57,19 +57,18 @@ public class Aes {
     }
 
     public static byte[] encryptDiffieExchange(byte[] nonce, byte[] identity, byte[] diffie) {
-      //  try {
-            //  Cipher cipher = getAesCipher(Cipher.ENCRYPT_MODE, Vpn.getVpnManager().getSharedKey());
+        try {
             byte[] encryptionTarget = new byte[Common.NONCE_LENGTH + Common.IDENTITY_LENGTH + diffie.length];
             System.arraycopy(nonce, 0, encryptionTarget, 0, Common.NONCE_LENGTH);
             System.arraycopy(identity, 0, encryptionTarget, Common.NONCE_LENGTH, Common.IDENTITY_LENGTH);
             System.arraycopy(diffie, 0, encryptionTarget, Common.NONCE_LENGTH + Common.IDENTITY_LENGTH, diffie.length);
-            // return cipher.doFinal(encryptionTarget);
-            return encryptionTarget;
-//        } catch (IllegalBlockSizeException | BadPaddingException e) {
-//            e.printStackTrace();
-//            System.exit(1);
-//            return null;
-//        }
+            Cipher cipher = getAesCipher(Cipher.ENCRYPT_MODE, Vpn.getVpnManager().getSharedKey());
+            return cipher.doFinal(encryptionTarget);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return null;
+        }
     }
 
     public static byte[] decryptDiffieExchange(byte[] encrypted) {

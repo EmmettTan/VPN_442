@@ -23,7 +23,7 @@ public class Common {
 
     public static final String ENCODING_TYPE = "UTF-8";
 
-    public static final int BLOCK_SIZE = 16;
+    public static final int IV_LENGTH = 16;
 
     public static byte[] setupIdentity(Socket clientSocket) {
         try {
@@ -44,8 +44,7 @@ public class Common {
     }
 
     public static BigInteger processDiffieResponse(byte[] encryptedBytes) {
-      //  byte[] decrypted = Aes.decryptDiffieExchange(encryptedBytes);
-        byte[] decrypted = encryptedBytes;
+        byte[] decrypted = Aes.decryptDiffieExchange(encryptedBytes);
 
         // check my nonce
         byte[] myNonceFromResponse = new byte[Common.NONCE_LENGTH];
