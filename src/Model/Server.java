@@ -66,7 +66,7 @@ public class Server implements Runnable {
             reader.read(clientIdentityBytes);
             Common.validateByteEquality(clientIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
 
-            // order: server nonce, encrypted (client nonce, identity, diffie params); move this to another method after DH is done
+            // order: server nonce, encrypted (client nonce, identity, diffie params); TODO move this to another method after DH is done
             Diffie diffie = new Diffie();
             BigInteger myDiffieParams = diffie.calPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();

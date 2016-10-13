@@ -40,14 +40,6 @@ public class Common {
         }
     }
 
-    public static byte[] setCorrectBlockLength(byte[] a) {
-        if (a.length % Common.BLOCK_SIZE != 0) {
-            int diff = Common.BLOCK_SIZE - (a.length % Common.BLOCK_SIZE);
-            a = Arrays.copyOf(a, a.length + diff);
-        }
-        return a;
-    }
-
     public static BigInteger processDiffieResponse(byte[] encryptedBytes) {
         // check my nonce
         byte[] myNonceFromResponse = new byte[Common.NONCE_LENGTH];
@@ -81,6 +73,7 @@ public class Common {
         System.arraycopy(nonce, 0, encryptionTarget, 0, Common.NONCE_LENGTH);
         System.arraycopy(identity, 0, encryptionTarget, Common.NONCE_LENGTH, Common.IDENTITY_LENGTH);
         System.arraycopy(diffie, 0, encryptionTarget, Common.NONCE_LENGTH + Common.IDENTITY_LENGTH, diffie.length);
+
         return encryptionTarget;
     }
 }
