@@ -1,6 +1,7 @@
 package Model;
 
 import Helper.Common;
+import Helper.Diffie;
 import Helper.Status;
 
 import java.io.DataInputStream;
@@ -8,13 +9,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.
  */
 public class Client implements Runnable {
-    private final static String identity = "CLNT";
 
     private Socket clientSocket;
 
@@ -29,7 +28,7 @@ public class Client implements Runnable {
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
-            byte[] identityBytes = identity.getBytes(Common.ENCODING_TYPE);
+            byte[] identityBytes = Vpn.getVpnManager().getMyIdentity();
             byte[] bytesToSend = new byte[Common.NONCE_LENGTH + Common.IDENTITY_LENGTH];
             System.arraycopy(nonce, 0, bytesToSend, 0, nonce.length);
             System.arraycopy(identityBytes, 0, bytesToSend, nonce.length, identityBytes.length);
@@ -39,35 +38,26 @@ public class Client implements Runnable {
             // wait for response from server
             while (reader.available() == 0) {}
 
-            byte[] receivedBytes = new byte[reader.available()];
-            reader.readFully(receivedBytes);
+            byte[] responseFromServer = new byte[reader.available()];
+            reader.readFully(responseFromServer);
 
             // unencrypted challenge from server
             byte[] serverNonce = new byte[Common.NONCE_LENGTH];
-            System.arraycopy(receivedBytes, 0, serverNonce, 0, Common.NONCE_LENGTH);
+            System.arraycopy(responseFromServer, 0, serverNonce, 0, Common.NONCE_LENGTH);
 
-            // check my nonce
-            byte[] myNonceFromServer = new byte[Common.NONCE_LENGTH];
-            System.arraycopy(receivedBytes, Common.NONCE_LENGTH, myNonceFromServer, 0, Common.NONCE_LENGTH);
-            Common.validate(myNonceFromServer, Vpn.getVpnManager().getMyNonce());
+            byte[] encryptedBytesFromServer = new byte[responseFromServer.length - Common.NONCE_LENGTH];
+            System.arraycopy(responseFromServer, Common.NONCE_LENGTH, encryptedBytesFromServer, 0, responseFromServer.length - Common.NONCE_LENGTH);
+            BigInteger diffieParam = Common.processDiffieResponse(encryptedBytesFromServer);
+            // TODO compute diffie key
 
-            // check server identity
-            byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
-            System.arraycopy(receivedBytes, 2 * Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
-            Common.validate(serverIdentityBytes, Server.getIdentity());
+            // TOOD filler code for calculating g^a mod p to send to server; remove after we have DH code
+            Diffie diffie = new Diffie();
+            BigInteger myDiffieParams = diffie.calPubKey();
+            byte[] myDiffieBytes = myDiffieParams.toByteArray();
 
-            // compute DH
-            int startOfDiffieBytes = 2 * Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
-            int diffieBytesFromServerLen = receivedBytes.length - startOfDiffieBytes;
-            byte[] diffieBytesFromServer = new byte[diffieBytesFromServerLen];
-            System.arraycopy(receivedBytes, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
-            BigInteger diffieIntFromServer = new BigInteger(diffieBytesFromServer);
-            // TODO call diffie stuff here
+            byte[] responseToServer = Common.encryptDiffieExchange(serverNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
+            writer.write(responseToServer);
 
-            // encrypt response to server
-
-            // TODO: if everything okay, set status to both connected
-            // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
         } catch (Exception e) {
@@ -82,17 +72,6 @@ public class Client implements Runnable {
             System.out.println("Failed to connect to server");
             e.printStackTrace();
             System.exit(1);
-        }
-    }
-
-    public static byte[] getIdentity() {
-        try {
-            return identity.getBytes(Common.ENCODING_TYPE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("An unexpected error has occurred. Aborting");
-            System.exit(1);
-            return null;
         }
     }
 }

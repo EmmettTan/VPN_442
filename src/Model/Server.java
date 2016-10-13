@@ -10,15 +10,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 
 /**
  * Created by karui on 2016-10-03.
  */
 public class Server implements Runnable {
-    private final int BUFFER_SIZE = 16;
-    private static final String identity = "SRVR";
-
     private ServerSocket serverSocket;
     private Socket clientSocket;
 
@@ -68,19 +64,13 @@ public class Server implements Runnable {
             Vpn.getVpnManager().setClientNonce(clientNonce);
             byte[] clientIdentityBytes = new byte[Common.IDENTITY_LENGTH];
             reader.read(clientIdentityBytes);
-            Common.validate(clientIdentityBytes, Client.getIdentity());
+            Common.validateByteEquality(clientIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
 
-            // order: server nonce, encrypted (client nonce, identity, diffie params)
+            // order: server nonce, encrypted (client nonce, identity, diffie params); move this to another method after DH is done
             Diffie diffie = new Diffie();
-            BigInteger diffieParams = diffie.calPubKey();
-            byte[] identityBytes = identity.getBytes(Common.ENCODING_TYPE);
-            byte[] diffieBytes = diffieParams.toByteArray();
-            byte[] encryptionTarget = new byte[Common.NONCE_LENGTH + Common.IDENTITY_LENGTH + diffieBytes.length];
-
-            // put bytes into encryption target; TODO encrypt with shared key
-            System.arraycopy(clientNonce, 0, encryptionTarget, 0, Common.NONCE_LENGTH);
-            System.arraycopy(identityBytes, 0, encryptionTarget, Common.NONCE_LENGTH, Common.IDENTITY_LENGTH);
-            System.arraycopy(diffieBytes, 0, encryptionTarget, Common.NONCE_LENGTH + Common.IDENTITY_LENGTH, diffieBytes.length);
+            BigInteger myDiffieParams = diffie.calPubKey();
+            byte[] myDiffieBytes = myDiffieParams.toByteArray();
+            byte[] encryptionTarget = Common.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
 
             byte[] bytesToSend = new byte[Common.NONCE_LENGTH + encryptionTarget.length];
             System.arraycopy(nonce, 0, bytesToSend, 0, nonce.length);
@@ -90,7 +80,11 @@ public class Server implements Runnable {
 
             while (reader.available() == 0) {}
 
-            // TODO: check nonce here; if okay, set status to both connected; for now we just assume it's okay
+            byte[] responseFromClient = new byte[reader.available()];
+            reader.readFully(responseFromClient);
+            BigInteger diffieParam = Common.processDiffieResponse(responseFromClient);
+            // TODO compute diffie key
+
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
         } catch (Exception e) {
@@ -101,16 +95,5 @@ public class Server implements Runnable {
 
     public void setClientSocket(Socket clientSocket) {
         this.clientSocket = clientSocket;
-    }
-
-    public static byte[] getIdentity() {
-        try {
-            return identity.getBytes(Common.ENCODING_TYPE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("An unexpected error has occurred. Aborting");
-            System.exit(1);
-            return null;
-        }
     }
 }

@@ -1,10 +1,12 @@
 package Helper;
 
+import Model.Server;
 import Model.Vpn;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.Arrays;
 
@@ -46,10 +48,39 @@ public class Common {
         return a;
     }
 
-    public static void validate(byte[] actual, byte[] expected) {
+    public static BigInteger processDiffieResponse(byte[] encryptedBytes) {
+        // check my nonce
+        byte[] myNonceFromResponse = new byte[Common.NONCE_LENGTH];
+        System.arraycopy(encryptedBytes, 0, myNonceFromResponse, 0, Common.NONCE_LENGTH);
+        Common.validateByteEquality(myNonceFromResponse, Vpn.getVpnManager().getMyNonce());
+
+        // check identity
+        byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
+        System.arraycopy(encryptedBytes, Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
+        Common.validateByteEquality(serverIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
+
+        // compute DH
+        int startOfDiffieBytes = Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
+        int diffieBytesFromServerLen = encryptedBytes.length - startOfDiffieBytes;
+        byte[] diffieBytesFromServer = new byte[diffieBytesFromServerLen];
+        System.arraycopy(encryptedBytes, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
+        BigInteger diffieInt = new BigInteger(diffieBytesFromServer);
+        return diffieInt;
+    }
+
+    public static void validateByteEquality(byte[] actual, byte[] expected) {
         if (!Arrays.equals(actual, expected)) {
             System.out.println("TRUDY APPEARED! OMG!!!");
             System.exit(1);
         }
+    }
+
+    public static byte[] encryptDiffieExchange(byte[] nonce, byte[] identity, byte[] diffie) {
+        // TODO ADD ENCRYPTION
+        byte[] encryptionTarget = new byte[Common.NONCE_LENGTH + Common.IDENTITY_LENGTH + diffie.length];
+        System.arraycopy(nonce, 0, encryptionTarget, 0, Common.NONCE_LENGTH);
+        System.arraycopy(identity, 0, encryptionTarget, Common.NONCE_LENGTH, Common.IDENTITY_LENGTH);
+        System.arraycopy(diffie, 0, encryptionTarget, Common.NONCE_LENGTH + Common.IDENTITY_LENGTH, diffie.length);
+        return encryptionTarget;
     }
 }

@@ -15,6 +15,8 @@ import java.security.SecureRandom;
 public class VpnManager {
     private final int SHARED_KEY_LENGTH = 16;
     private final String CIPHER_TYPE = "AES";
+    private final String SERVER_IDENTITY = "SRVR";
+    private final String CLIENT_IDENTITY = "CLNT";
 
     private DataInputStream reader;
     private DataOutputStream writer;
@@ -87,6 +89,28 @@ public class VpnManager {
         status = Status.ClientConnected;
         setSessionKey("1234567890123456");
         new Thread(client).start();
+    }
+
+    public byte[] getMyIdentity() {
+        try {
+            return server == null ? CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE) : SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
+    }
+
+    public byte[] getOppositeIdentity() {
+        try {
+            return server == null ? SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE) : CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
     }
 
     public void terminate() {
