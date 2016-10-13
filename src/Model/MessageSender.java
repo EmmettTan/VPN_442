@@ -1,5 +1,6 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
 import Helper.Status;
 
@@ -33,7 +34,7 @@ public class MessageSender {
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
             byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
 
-            Cipher cipher = Common.getAesCipher(Cipher.ENCRYPT_MODE);
+            Cipher cipher = Aes.getAesCipher(Cipher.ENCRYPT_MODE, Vpn.getVpnManager().getSessionKey());
             byte[] plaintextBytes = textToSend.getBytes(Common.ENCODING_TYPE);
 
             plaintextBytes = Common.setCorrectBlockLength(plaintextBytes);
