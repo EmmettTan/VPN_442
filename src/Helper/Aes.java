@@ -18,7 +18,6 @@ public class Aes {
 
     public static Cipher getAesCipher(int opmode, SecretKeySpec key) {
         try {
-
             Cipher cipher = Cipher.getInstance(CIPHER_SETTINGS);
             GCMParameterSpec gcm = new GCMParameterSpec(128, Vpn.getVpnManager().getIvManager().getIV());
             cipher.init(opmode, key, gcm);
