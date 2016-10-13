@@ -49,19 +49,12 @@ public class Client implements Runnable {
             // check my nonce
             byte[] myNonceFromServer = new byte[Common.NONCE_LENGTH];
             System.arraycopy(receivedBytes, Common.NONCE_LENGTH, myNonceFromServer, 0, Common.NONCE_LENGTH);
-            if (!Arrays.equals(myNonceFromServer, Vpn.getVpnManager().getMyNonce())) {
-                System.out.println("TRUDY APPEARED!");
-                System.exit(1);
-            }
+            Common.validate(myNonceFromServer, Vpn.getVpnManager().getMyNonce());
 
             // check server identity
             byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
             System.arraycopy(receivedBytes, 2 * Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
-            String serverIdentityString = new String(serverIdentityBytes, Common.ENCODING_TYPE);
-            if (!serverIdentityString.equals(Server.getIdentity())) {
-                System.out.println("FAKE SERVER");
-                System.exit(1);
-            }
+            Common.validate(serverIdentityBytes, Server.getIdentity());
 
             // compute DH
             int startOfDiffieBytes = 2 * Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
@@ -70,8 +63,10 @@ public class Client implements Runnable {
             System.arraycopy(receivedBytes, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
             BigInteger diffieIntFromServer = new BigInteger(diffieBytesFromServer);
             // TODO call diffie stuff here
-            
-            // TODO: receive identity & diffie params; if everything okay, set status to both connected
+
+            // encrypt response to server
+
+            // TODO: if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
@@ -90,7 +85,14 @@ public class Client implements Runnable {
         }
     }
 
-    public static String getIdentity() {
-        return identity;
+    public static byte[] getIdentity() {
+        try {
+            return identity.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
     }
 }

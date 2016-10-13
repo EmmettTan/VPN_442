@@ -68,13 +68,7 @@ public class Server implements Runnable {
             Vpn.getVpnManager().setClientNonce(clientNonce);
             byte[] clientIdentityBytes = new byte[Common.IDENTITY_LENGTH];
             reader.read(clientIdentityBytes);
-            String clientIdentityString = new String(clientIdentityBytes, Common.ENCODING_TYPE);
-            if (!clientIdentityString.equals(Client.getIdentity())) {
-                System.out.println("FAKE CLIENT");
-                System.exit(1);
-            }
-//            byte[] remaining = new byte[reader.available()];
-//            reader.readFully(remaining);
+            Common.validate(clientIdentityBytes, Client.getIdentity());
 
             // order: server nonce, encrypted (client nonce, identity, diffie params)
             Diffie diffie = new Diffie();
@@ -109,7 +103,14 @@ public class Server implements Runnable {
         this.clientSocket = clientSocket;
     }
 
-    public static String getIdentity() {
-        return identity;
+    public static byte[] getIdentity() {
+        try {
+            return identity.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
     }
 }

@@ -45,4 +45,11 @@ public class Common {
         }
         return a;
     }
+
+    public static void validate(byte[] actual, byte[] expected) {
+        if (!Arrays.equals(actual, expected)) {
+            System.out.println("TRUDY APPEARED! OMG!!!");
+            System.exit(1);
+        }
+    }
 }
