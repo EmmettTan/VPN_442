@@ -1,12 +1,14 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
+import Helper.Diffie;
 import Helper.Status;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,8 +16,6 @@ import java.net.Socket;
  * Created by karui on 2016-10-03.
  */
 public class Server implements Runnable {
-    private final int BUFFER_SIZE = 16;
-
     private ServerSocket serverSocket;
     private Socket clientSocket;
 
@@ -59,7 +59,35 @@ public class Server implements Runnable {
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
-            // TODO: check nonce here; if okay, set status to both connected; for now we just assume it's okay
+            // order: nonce, identity
+            byte[] clientNonce = new byte[Common.NONCE_LENGTH];
+            reader.read(clientNonce);
+            Vpn.getVpnManager().setClientNonce(clientNonce);
+            byte[] clientIdentityBytes = new byte[Common.IDENTITY_LENGTH];
+            reader.read(clientIdentityBytes);
+            Common.validateByteEquality(clientIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
+
+            // order: server nonce, encrypted (client nonce, identity, diffie params); TODO move this to another method after DH is done
+            Diffie diffie = new Diffie();
+            BigInteger myDiffieParams = diffie.calPubKey();
+            byte[] myDiffieBytes = myDiffieParams.toByteArray();
+            byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
+            byte[] encryptionTarget = Aes.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
+
+            byte[] bytesToSend = new byte[ivByteArray.length + Common.NONCE_LENGTH + encryptionTarget.length];
+            System.arraycopy(ivByteArray, 0, bytesToSend, 0, ivByteArray.length);
+            System.arraycopy(nonce, 0, bytesToSend, ivByteArray.length, nonce.length);
+            System.arraycopy(encryptionTarget, 0, bytesToSend, ivByteArray.length + nonce.length, encryptionTarget.length);
+
+            writer.write(bytesToSend);
+
+            while (reader.available() == 0) {}
+
+            byte[] responseFromClient = new byte[reader.available()];
+            reader.readFully(responseFromClient);
+            BigInteger diffieParam = Common.processDiffieResponse(responseFromClient);
+            // TODO compute diffie key
+
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
         } catch (Exception e) {

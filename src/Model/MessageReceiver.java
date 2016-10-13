@@ -1,5 +1,6 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
 import Helper.Status;
 
@@ -36,17 +37,14 @@ public class MessageReceiver extends Observable implements Runnable {
 
                     String ciphertextString = DatatypeConverter.printHexBinary(ciphertextBytes);
 
-                    Cipher cipher = Common.getAesCipher(Cipher.DECRYPT_MODE);
-                    ciphertextBytes = Common.setCorrectBlockLength(ciphertextBytes);
-
-                    byte[] plaintextBytes = cipher.doFinal(ciphertextBytes);
-                    String plaintextString = new String(plaintextBytes, Common.ENCODING_TYPE);
+                    Cipher cipher = Aes.getAesCipher(Cipher.DECRYPT_MODE, Vpn.getVpnManager().getSessionKey());
+                    String plaintextString = Aes.decrypt(ciphertextBytes, cipher);
 
                     System.out.println("Received ciphertext: " + ciphertextString);
                     System.out.println("Received plaintext: " + plaintextString);
                     updateMsgReceived(plaintextString);
                 }
-            } catch (IOException | IllegalBlockSizeException | BadPaddingException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Vpn.getVpnManager().setStatus(Status.Disconnected);
                 Vpn.getVpnManager().terminate();

@@ -1,19 +1,17 @@
 package Helper;
 
+import Model.Server;
 import Model.Vpn;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * Created by karui on 2016-10-03.
@@ -21,11 +19,11 @@ import javax.crypto.spec.GCMParameterSpec;
 public class Common {
     public static final int NONCE_LENGTH = 4;
 
+    public static final int IDENTITY_LENGTH = 4;
+
     public static final String ENCODING_TYPE = "UTF-8";
 
-    public static final String CIPHER_SETTINGS = "AES/GCM/NoPadding";
-
-    public static final int BLOCK_SIZE = 16;
+    public static final int IV_LENGTH = 16;
 
     public static byte[] setupIdentity(Socket clientSocket) {
         try {
@@ -45,25 +43,32 @@ public class Common {
         }
     }
 
-    public static Cipher getAesCipher(int opmode) {
-        try {
+    public static BigInteger processDiffieResponse(byte[] encryptedBytes) {
+        byte[] decrypted = Aes.decryptDiffieExchange(encryptedBytes);
 
-            Cipher cipher = Cipher.getInstance(CIPHER_SETTINGS);
-            GCMParameterSpec gcm = new GCMParameterSpec(128, Vpn.getVpnManager().getIvManager().getIV());
-            cipher.init(opmode, Vpn.getVpnManager().getAesKey(), gcm);
-            return cipher;
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            // TODO: DEAL WITH THIS
-            e.printStackTrace();
-            return null;
-        }
+        // check my nonce
+        byte[] myNonceFromResponse = new byte[Common.NONCE_LENGTH];
+        System.arraycopy(decrypted, 0, myNonceFromResponse, 0, Common.NONCE_LENGTH);
+        Common.validateByteEquality(myNonceFromResponse, Vpn.getVpnManager().getMyNonce());
+
+        // check identity
+        byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
+        System.arraycopy(decrypted, Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
+        Common.validateByteEquality(serverIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
+
+        // compute DH
+        int startOfDiffieBytes = Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
+        int diffieBytesFromServerLen = decrypted.length - startOfDiffieBytes;
+        byte[] diffieBytesFromServer = new byte[diffieBytesFromServerLen];
+        System.arraycopy(decrypted, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
+        BigInteger diffieInt = new BigInteger(diffieBytesFromServer);
+        return diffieInt;
     }
 
-    public static byte[] setCorrectBlockLength(byte[] a) {
-        if (a.length % Common.BLOCK_SIZE != 0) {
-            int diff = Common.BLOCK_SIZE - (a.length % Common.BLOCK_SIZE);
-            a = Arrays.copyOf(a, a.length + diff);
+    public static void validateByteEquality(byte[] actual, byte[] expected) {
+        if (!Arrays.equals(actual, expected)) {
+            System.out.println("TRUDY APPEARED! OMG!!!");
+            System.exit(1);
         }
-        return a;
     }
 }
