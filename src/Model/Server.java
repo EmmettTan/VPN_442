@@ -1,5 +1,6 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
 import Helper.Diffie;
 import Helper.Status;
@@ -70,7 +71,7 @@ public class Server implements Runnable {
             Diffie diffie = new Diffie();
             BigInteger myDiffieParams = diffie.calPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();
-            byte[] encryptionTarget = Common.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
+            byte[] encryptionTarget = Aes.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
 
             byte[] bytesToSend = new byte[Common.NONCE_LENGTH + encryptionTarget.length];
             System.arraycopy(nonce, 0, bytesToSend, 0, nonce.length);

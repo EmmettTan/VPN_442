@@ -1,5 +1,6 @@
 package Model;
 
+import Helper.Aes;
 import Helper.Common;
 import Helper.Diffie;
 import Helper.Status;
@@ -55,7 +56,7 @@ public class Client implements Runnable {
             BigInteger myDiffieParams = diffie.calPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();
 
-            byte[] responseToServer = Common.encryptDiffieExchange(serverNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
+            byte[] responseToServer = Aes.encryptDiffieExchange(serverNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
             writer.write(responseToServer);
 
             Vpn.getVpnManager().setStatus(Status.BothConnected);

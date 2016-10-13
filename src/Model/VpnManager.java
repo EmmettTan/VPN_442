@@ -27,7 +27,7 @@ public class VpnManager {
     private byte[] myNonce;
     private byte[] clientNonce;
     private String ip;
-    private SecretKeySpec aesKey;
+    private SecretKeySpec sharedKey;
     private IVManager ivManager;
     private SecretKeySpec sessionKey;
 
@@ -63,7 +63,7 @@ public class VpnManager {
     public void receiveSecret(String secret) {
         // TODO: check key length? or do the arrays copy thing to force key to always be 16 bytes?
         try {
-            aesKey = new SecretKeySpec(secret.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
+            sharedKey = new SecretKeySpec(secret.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -186,8 +186,8 @@ public class VpnManager {
         return server.getServerSocket();
     }
 
-    public SecretKeySpec getAesKey() {
-        return aesKey;
+    public SecretKeySpec getSharedKey() {
+        return sharedKey;
     }
 
     public SecretKeySpec getSessionKey() {
