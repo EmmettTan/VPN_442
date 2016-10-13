@@ -19,6 +19,7 @@ import javax.crypto.spec.GCMParameterSpec;
  * Created by karui on 2016-10-03.
  */
 public class Common {
+
     public static final int NONCE_LENGTH = 4;
 
     public static final String ENCODING_TYPE = "UTF-8";

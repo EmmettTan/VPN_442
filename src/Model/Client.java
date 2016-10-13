@@ -2,10 +2,12 @@ package Model;
 
 import Helper.Common;
 import Helper.Status;
+import Helper.Diffie;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 
 /**
@@ -26,7 +28,16 @@ public class Client implements Runnable {
             DataInputStream reader = Vpn.getVpnManager().getReader();
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
 
+            //Do the Diffie
+            Diffie clientDiffie = new Diffie();
+            writer.writeInt(clientDiffie.calPubKey().intValue());
+            int serverkey = reader.readInt();
+            BigInteger combinedKey = clientDiffie.calCombinedKey(serverkey);
+
+            //writer.write(nonce);
+
             // TODO: add code to receive nonce and do diffie hell thing; if everything okay, set status to both connected
+
             // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
