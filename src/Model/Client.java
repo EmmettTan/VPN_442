@@ -45,12 +45,24 @@ public class Client implements Runnable {
             byte[] serverNonce = new byte[Common.NONCE_LENGTH];
             System.arraycopy(receivedBytes, 0, serverNonce, 0, Common.NONCE_LENGTH);
 
+            // check my nonce
             byte[] myNonceFromServer = new byte[Common.NONCE_LENGTH];
             System.arraycopy(receivedBytes, Common.NONCE_LENGTH, myNonceFromServer, 0, Common.NONCE_LENGTH);
             if (!Arrays.equals(myNonceFromServer, Vpn.getVpnManager().getMyNonce())) {
                 System.out.println("TRUDY APPEARED!");
                 System.exit(1);
             }
+
+            // check server identity
+            byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
+            System.arraycopy(receivedBytes, 2 * Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
+            String serverIdentityString = new String(serverIdentityBytes, Common.ENCODING_TYPE);
+            if (!serverIdentityString.equals(Server.getIdentity())) {
+                System.out.println("FAKE SERVER");
+                System.exit(1);
+            }
+
+            // compute DH
 
             // TODO: receive identity & diffie params; if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay

@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
  */
 public class Server implements Runnable {
     private final int BUFFER_SIZE = 16;
-    private final String identity = "SRVR";
+    private static final String identity = "SRVR";
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -107,5 +107,9 @@ public class Server implements Runnable {
 
     public void setClientSocket(Socket clientSocket) {
         this.clientSocket = clientSocket;
+    }
+
+    public static String getIdentity() {
+        return identity;
     }
 }
