@@ -14,6 +14,8 @@ import java.util.Arrays;
 public class Common {
     public static final int NONCE_LENGTH = 4;
 
+    public static final int IDENTITY_LENGTH = 4;
+
     public static final String ENCODING_TYPE = "UTF-8";
 
     public static final int BLOCK_SIZE = 16;

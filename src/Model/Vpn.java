@@ -1,8 +1,10 @@
 package Model;
 
+import Helper.Common;
 import Ui.VpnUi;
 
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * Created by karui on 2016-10-03.
