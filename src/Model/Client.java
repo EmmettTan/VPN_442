@@ -6,6 +6,7 @@ import Helper.Status;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.Arrays;
 
@@ -63,7 +64,13 @@ public class Client implements Runnable {
             }
 
             // compute DH
-
+            int startOfDiffieBytes = 2 * Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
+            int diffieBytesFromServerLen = receivedBytes.length - startOfDiffieBytes;
+            byte[] diffieBytesFromServer = new byte[diffieBytesFromServerLen];
+            System.arraycopy(receivedBytes, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
+            BigInteger diffieIntFromServer = new BigInteger(diffieBytesFromServer);
+            // TODO call diffie stuff here
+            
             // TODO: receive identity & diffie params; if everything okay, set status to both connected
             // for now we set the status to both connected directly and assume okay
             Vpn.getVpnManager().setStatus(Status.BothConnected);

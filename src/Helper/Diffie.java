@@ -7,6 +7,6 @@ import java.math.BigInteger;
  */
 public class Diffie {
     public BigInteger calPubKey() {
-        return new BigInteger("0");
+        return new BigInteger("123456");
     }
 }
