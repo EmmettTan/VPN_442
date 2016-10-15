@@ -1,4 +1,4 @@
-package Ui;
+package Model;
 
 import Model.Observable;
 

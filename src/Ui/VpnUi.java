@@ -1,6 +1,7 @@
 package Ui;
 
 import Model.MessageSender;
+import Model.Observer;
 import Model.Vpn;
 
 import javax.swing.*;
