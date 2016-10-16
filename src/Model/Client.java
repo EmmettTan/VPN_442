@@ -30,10 +30,11 @@ public class Client implements Runnable {
 
             //Do the Diffie
             Diffie clientDiffie = new Diffie();
-            writer.writeInt(clientDiffie.calPubKey().intValue());
+            System.out.println(clientDiffie.getPubKey().intValue());
+            writer.writeInt(clientDiffie.getPubKey().intValue());
             int serverkey = reader.readInt();
-            BigInteger combinedKey = clientDiffie.calCombinedKey(serverkey);
-
+            //BigInteger combinedKey = clientDiffie.getCombinedKey(BigInteger.valueOf(serverkey));
+            //System.out.println(combinedKey);
             //writer.write(nonce);
 
             // TODO: add code to receive nonce and do diffie hell thing; if everything okay, set status to both connected

@@ -64,8 +64,11 @@ public class Server implements Runnable {
             //Do the Diffie
             Diffie serverDiffie = new Diffie();
             int clientKey = reader.readInt();
-            writer.writeInt(serverDiffie.calPubKey().intValue());
-            BigInteger combinedKey = serverDiffie.calCombinedKey(clientKey);
+            System.out.println(serverDiffie.getPubKey().intValue());
+            writer.writeInt(serverDiffie.getPubKey().intValue());
+            BigInteger combinedKey = serverDiffie.getCombinedKey(BigInteger.valueOf(clientKey));
+            System.out.println(combinedKey);
+
             //writer.write(nonce);
 
             // client nonce
