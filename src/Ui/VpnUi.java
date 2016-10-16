@@ -141,6 +141,7 @@ public class VpnUi extends Observer {
 
         JButton serverButton = new JButton("Server");
         serverButton.addActionListener(e -> {
+                applicationFrame.setTitle("Server");
                 Vpn.getVpnManager().initializeServer();
                 identityPanel.setVisible(false);
                 messagePanel.setVisible(true);
@@ -148,6 +149,7 @@ public class VpnUi extends Observer {
 
         JButton clientButton = new JButton("Client");
         clientButton.addActionListener(e -> {
+                applicationFrame.setTitle("Client");
                 identityPanel.setVisible(false);
                 ipPanel.setVisible(true);
         });
