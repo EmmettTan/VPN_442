@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.
@@ -57,10 +58,12 @@ public class Client implements Runnable {
 
             // TOOD filler code for calculating g^a mod p to send to server; remove after we have DH code
             Diffie diffie = new Diffie();
-            // TODO compute diffie key
-            System.out.println(diffieParam);
-            BigInteger temp = new BigInteger(diffie.getCombinedKey(diffieParam));
-            System.out.println(temp);
+
+            //Truncates Combined key to suit AES
+            byte[] sharedKey = diffie.getCombinedKey(diffieParam);
+            byte[] sessionKey = Arrays.copyOf(sharedKey, 16);
+            //Sets session key
+            Vpn.getVpnManager().setSessionKey(sessionKey);
 
             BigInteger myDiffieParams = diffie.getPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Created by karui on 2016-10-03.
@@ -86,11 +87,12 @@ public class Server implements Runnable {
             byte[] responseFromClient = new byte[reader.available()];
             reader.readFully(responseFromClient);
             BigInteger diffieParam = Common.processDiffieResponse(responseFromClient);
-            // TODO compute diffie key
-            System.out.println(diffieParam);
-            BigInteger temp = new BigInteger(diffie.getCombinedKey(diffieParam));
-            System.out.println(temp);
 
+            //Truncate Combined key to suit AES
+            byte[] sharedKey = diffie.getCombinedKey(diffieParam);
+            byte[] sessionKey = Arrays.copyOf(sharedKey, 16);
+            //Set Session key
+            Vpn.getVpnManager().setSessionKey(sessionKey);
 
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
