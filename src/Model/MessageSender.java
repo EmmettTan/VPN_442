@@ -1,11 +1,9 @@
 package Model;
 
-import Helper.Common;
+import Helper.Aes;
 import Helper.Status;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.xml.bind.DatatypeConverter;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -33,13 +31,8 @@ public class MessageSender {
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
             byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
 
-            Cipher cipher = Common.getAesCipher(Cipher.ENCRYPT_MODE);
-            byte[] plaintextBytes = textToSend.getBytes(Common.ENCODING_TYPE);
-
-            plaintextBytes = Common.setCorrectBlockLength(plaintextBytes);
-
-            byte[] ciphertextBytes = cipher.doFinal(plaintextBytes);
-
+            Cipher cipher = Aes.getAesCipher(Cipher.ENCRYPT_MODE, Vpn.getVpnManager().getSessionKey());
+            byte[] ciphertextBytes = Aes.encrypt(textToSend, cipher);
 
             byte[] ciphertextIVBytes = new byte[ivByteArray.length + ciphertextBytes.length];
             System.arraycopy(ivByteArray, 0, ciphertextIVBytes, 0, ivByteArray.length);
@@ -51,7 +44,7 @@ public class MessageSender {
             System.out.println("Sent ciphertext: " + ciphertextString);
 
             writer.write(ciphertextIVBytes);
-        } catch (IOException | IllegalBlockSizeException | BadPaddingException ex) {
+        } catch (IOException ex) {
             Vpn.getVpnManager().terminate();
             ex.printStackTrace();
         }

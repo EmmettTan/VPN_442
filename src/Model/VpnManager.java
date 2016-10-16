@@ -15,6 +15,8 @@ import java.security.SecureRandom;
 public class VpnManager {
     private final int SHARED_KEY_LENGTH = 16;
     private final String CIPHER_TYPE = "AES";
+    private final String SERVER_IDENTITY = "SRVR";
+    private final String CLIENT_IDENTITY = "CLNT";
 
     private DataInputStream reader;
     private DataOutputStream writer;
@@ -25,8 +27,9 @@ public class VpnManager {
     private byte[] myNonce;
     private byte[] clientNonce;
     private String ip;
-    private SecretKeySpec aesKey;
+    private SecretKeySpec sharedKey;
     private IVManager ivManager;
+    private SecretKeySpec sessionKey;
 
     private VpnManager() {
         reader = null;
@@ -60,7 +63,7 @@ public class VpnManager {
     public void receiveSecret(String secret) {
         // TODO: check key length? or do the arrays copy thing to force key to always be 16 bytes?
         try {
-            aesKey = new SecretKeySpec(secret.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
+            sharedKey = new SecretKeySpec(secret.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -69,6 +72,8 @@ public class VpnManager {
     public void initializeServer() {
         try {
             server = new Server();
+            // TODO REMOVE THIS AFTER DIFFIE
+            setSessionKey("1234567890123456");
             server.bind(port);
             status = Status.SeverConnected;
             System.out.println("Magic is happening on port " + port);
@@ -82,7 +87,30 @@ public class VpnManager {
         client = new Client();
         client.setSocket(ip, port);
         status = Status.ClientConnected;
+        setSessionKey("1234567890123456");
         new Thread(client).start();
+    }
+
+    public byte[] getMyIdentity() {
+        try {
+            return server == null ? CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE) : SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
+    }
+
+    public byte[] getOppositeIdentity() {
+        try {
+            return server == null ? SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE) : CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("An unexpected error has occurred. Aborting");
+            System.exit(1);
+            return null;
+        }
     }
 
     public void terminate() {
@@ -128,6 +156,14 @@ public class VpnManager {
         client = c;
     }
 
+    public void setSessionKey(String key) {
+        try {
+            sessionKey = new SecretKeySpec(key.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void initIvManager() { ivManager = new IVManager(); }
 
     public byte[] getMyNonce() {
@@ -150,8 +186,12 @@ public class VpnManager {
         return server.getServerSocket();
     }
 
-    public SecretKeySpec getAesKey() {
-        return aesKey;
+    public SecretKeySpec getSharedKey() {
+        return sharedKey;
+    }
+
+    public SecretKeySpec getSessionKey() {
+        return sessionKey;
     }
 
     public IVManager getIvManager() {

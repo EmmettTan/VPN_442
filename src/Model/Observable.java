@@ -1,7 +1,5 @@
 package Model;
 
-import Ui.Observer;
-
 import java.util.ArrayList;
 import java.util.List;
 
