@@ -54,11 +54,15 @@ public class Client implements Runnable {
             byte[] encryptedBytesFromServer = new byte[responseFromServer.length - Common.NONCE_LENGTH - Common.IV_LENGTH];
             System.arraycopy(responseFromServer, Common.IV_LENGTH + Common.NONCE_LENGTH, encryptedBytesFromServer, 0, responseFromServer.length - Common.NONCE_LENGTH - Common.IV_LENGTH);
             BigInteger diffieParam = Common.processDiffieResponse(encryptedBytesFromServer);
-            // TODO compute diffie key
 
             // TOOD filler code for calculating g^a mod p to send to server; remove after we have DH code
             Diffie diffie = new Diffie();
-            BigInteger myDiffieParams = diffie.calPubKey();
+            // TODO compute diffie key
+            System.out.println(diffieParam);
+            BigInteger temp = new BigInteger(diffie.getCombinedKey(diffieParam));
+            System.out.println(temp);
+
+            BigInteger myDiffieParams = diffie.getPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();
 
             byte[] responseToServer = Aes.encryptDiffieExchange(serverNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);

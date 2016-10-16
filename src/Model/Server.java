@@ -69,7 +69,7 @@ public class Server implements Runnable {
 
             // order: server nonce, encrypted (client nonce, identity, diffie params); TODO move this to another method after DH is done
             Diffie diffie = new Diffie();
-            BigInteger myDiffieParams = diffie.calPubKey();
+            BigInteger myDiffieParams = diffie.getPubKey();
             byte[] myDiffieBytes = myDiffieParams.toByteArray();
             byte[] ivByteArray = Vpn.getVpnManager().getIvManager().getIV();
             byte[] encryptionTarget = Aes.encryptDiffieExchange(clientNonce, Vpn.getVpnManager().getMyIdentity(), myDiffieBytes);
@@ -87,6 +87,10 @@ public class Server implements Runnable {
             reader.readFully(responseFromClient);
             BigInteger diffieParam = Common.processDiffieResponse(responseFromClient);
             // TODO compute diffie key
+            System.out.println(diffieParam);
+            BigInteger temp = new BigInteger(diffie.getCombinedKey(diffieParam));
+            System.out.println(temp);
+
 
             Vpn.getVpnManager().setStatus(Status.BothConnected);
             new Thread(new MessageReceiver()).start();
