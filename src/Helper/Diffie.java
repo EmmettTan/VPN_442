@@ -25,12 +25,6 @@ public class Diffie {
 
     public Diffie() {
         try {
-            SecureRandom rnd = new SecureRandom();
-            BigInteger p = BigInteger.probablePrime(256, rnd);
-            BigInteger g = BigInteger.probablePrime(256, rnd);
-            System.out.println(p);
-            System.out.println(g);
-            System.out.println("poopie");
             //Making DH Generator with P and G
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DiffieHellman");
             DHParameterSpec DHParam = new DHParameterSpec(P_PRIME_MODULUS, G_PRIME_BASE);
