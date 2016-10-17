@@ -73,7 +73,7 @@ public class VpnManager {
         try {
             server = new Server();
             // TODO REMOVE THIS AFTER DIFFIE
-            setSessionKey("1234567890123456");
+            //setSessionKey("1234567890123456");
             server.bind(port);
             status = Status.SeverConnected;
             System.out.println("Magic is happening on port " + port);
@@ -87,7 +87,7 @@ public class VpnManager {
         client = new Client();
         client.setSocket(ip, port);
         status = Status.ClientConnected;
-        setSessionKey("1234567890123456");
+        //setSessionKey("1234567890123456");
         new Thread(client).start();
     }
 
@@ -156,12 +156,8 @@ public class VpnManager {
         client = c;
     }
 
-    public void setSessionKey(String key) {
-        try {
-            sessionKey = new SecretKeySpec(key.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    public void setSessionKey(byte[] key) {
+        sessionKey = new SecretKeySpec(key, CIPHER_TYPE);
     }
 
     public void initIvManager() { ivManager = new IVManager(); }
