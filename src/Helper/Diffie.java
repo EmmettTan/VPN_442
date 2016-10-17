@@ -3,13 +3,10 @@ package Helper;
 import java.math.BigInteger;
 import java.security.*;
 
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPublicKeySpec;
-import javax.crypto.spec.DHPrivateKeySpec;
 import javax.crypto.KeyAgreement;
 
 /**

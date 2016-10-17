@@ -56,12 +56,12 @@ public class Client implements Runnable {
             System.arraycopy(responseFromServer, Common.IV_LENGTH + Common.NONCE_LENGTH, encryptedBytesFromServer, 0, responseFromServer.length - Common.NONCE_LENGTH - Common.IV_LENGTH);
             BigInteger diffieParam = Common.processDiffieResponse(encryptedBytesFromServer);
 
-            // TOOD filler code for calculating g^a mod p to send to server; remove after we have DH code
             Diffie diffie = new Diffie();
 
             //Truncates Combined key to suit AES
             byte[] sharedKey = diffie.getCombinedKey(diffieParam);
             byte[] sessionKey = Arrays.copyOf(sharedKey, 16);
+
             //Sets session key
             Vpn.getVpnManager().setSessionKey(sessionKey);
 
@@ -83,7 +83,6 @@ public class Client implements Runnable {
             clientSocket = new Socket(ip, port);
         } catch (IOException e) {
             System.out.println("Failed to connect to server");
-            e.printStackTrace();
             System.exit(1);
         }
     }

@@ -13,7 +13,6 @@ import java.security.SecureRandom;
  * Created by karui on 2016-10-03.
  */
 public class VpnManager {
-    private final int SHARED_KEY_LENGTH = 16;
     private final String CIPHER_TYPE = "AES";
     private final String SERVER_IDENTITY = "SRVR";
     private final String CLIENT_IDENTITY = "CLNT";
@@ -56,12 +55,10 @@ public class VpnManager {
     }
 
     public void receivePort(int port) {
-        // TODO: check for invalid port
         this.port = port;
     }
 
     public void receiveSecret(String secret) {
-        // TODO: check key length? or do the arrays copy thing to force key to always be 16 bytes?
         try {
             sharedKey = new SecretKeySpec(secret.getBytes(Common.ENCODING_TYPE), CIPHER_TYPE);
         } catch (UnsupportedEncodingException e) {
@@ -72,8 +69,6 @@ public class VpnManager {
     public void initializeServer() {
         try {
             server = new Server();
-            // TODO REMOVE THIS AFTER DIFFIE
-            //setSessionKey("1234567890123456");
             server.bind(port);
             status = Status.SeverConnected;
             System.out.println("Magic is happening on port " + port);
@@ -87,7 +82,6 @@ public class VpnManager {
         client = new Client();
         client.setSocket(ip, port);
         status = Status.ClientConnected;
-        //setSessionKey("1234567890123456");
         new Thread(client).start();
     }
 
@@ -95,9 +89,7 @@ public class VpnManager {
         try {
             return server == null ? CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE) : SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("An unexpected error has occurred. Aborting");
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
@@ -106,9 +98,7 @@ public class VpnManager {
         try {
             return server == null ? SERVER_IDENTITY.getBytes(Common.ENCODING_TYPE) : CLIENT_IDENTITY.getBytes(Common.ENCODING_TYPE);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("An unexpected error has occurred. Aborting");
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
@@ -146,14 +136,6 @@ public class VpnManager {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public void setServer(Server s) {
-        server = s;
-    }
-
-    public void setClient(Client c) {
-        client = c;
     }
 
     public void setSessionKey(byte[] key) {

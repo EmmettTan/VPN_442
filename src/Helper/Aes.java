@@ -24,9 +24,7 @@ public class Aes {
             byte[] plaintextBytes = text.getBytes(Common.ENCODING_TYPE);
             return cipher.doFinal(plaintextBytes);
         } catch (UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException e) {
-            System.out.println("An unexpected error has occurred. Aborting");
-            e.printStackTrace();
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
@@ -36,9 +34,7 @@ public class Aes {
             byte[] plaintextBytes = cipher.doFinal(ciphertextBytes);
             return new String(plaintextBytes, Common.ENCODING_TYPE);
         } catch (UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException e) {
-            System.out.println("An unexpected error has occurred. Aborting");
-            e.printStackTrace();
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
@@ -50,8 +46,7 @@ public class Aes {
             cipher.init(opmode, key, gcm);
             return cipher;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-            // TODO: DEAL WITH THIS
-            e.printStackTrace();
+            Common.handleException(e);
             return null;
         }
     }
@@ -65,8 +60,7 @@ public class Aes {
             Cipher cipher = getAesCipher(Cipher.ENCRYPT_MODE, Vpn.getVpnManager().getSharedKey());
             return cipher.doFinal(encryptionTarget);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
@@ -76,8 +70,7 @@ public class Aes {
             Cipher cipher = getAesCipher(Cipher.DECRYPT_MODE, Vpn.getVpnManager().getSharedKey());
             return cipher.doFinal(encrypted);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }

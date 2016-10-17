@@ -21,6 +21,8 @@ public class Common {
 
     public static final int IV_LENGTH = 16;
 
+    public static final String GENERIC_ERROR_MESSAGE = "An unexpected error has occurred: ";
+
     public static byte[] setupIdentity(Socket clientSocket) {
         try {
             DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
@@ -29,12 +31,11 @@ public class Common {
             Vpn.getVpnManager().setWriter(writer);
             Vpn.getVpnManager().setNonce();
             Vpn.getVpnManager().initIvManager();
-
-            // send the nonce; should we send it as a string? i.e. writer.writeUTF(nonce.toString());
             return Vpn.getVpnManager().getMyNonce();
         } catch (IOException e) {
             e.printStackTrace();
-            // TODO: check for null in upper level
+            System.err.println(GENERIC_ERROR_MESSAGE + e.getMessage());
+            System.exit(1);
             return null;
         }
     }
@@ -64,7 +65,15 @@ public class Common {
     public static void validateByteEquality(byte[] actual, byte[] expected) {
         if (!Arrays.equals(actual, expected)) {
             System.out.println("TRUDY APPEARED! OMG!!!");
+            Vpn.getVpnManager().terminate();
             System.exit(1);
         }
+    }
+
+    public static void handleException(Exception e) {
+        Vpn.getVpnManager().terminate();
+        e.printStackTrace();
+        System.err.println(GENERIC_ERROR_MESSAGE + e.getMessage());
+        System.exit(1);
     }
 }

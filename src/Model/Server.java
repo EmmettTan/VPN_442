@@ -28,9 +28,7 @@ public class Server implements Runnable {
         try {
             serverSocket = new ServerSocket(portNum);
         } catch (IOException e) {
-            System.out.println("Failed to bind to port");
-            e.printStackTrace();
-            System.exit(1);
+           Common.handleException(e);
         }
     }
 
@@ -38,7 +36,7 @@ public class Server implements Runnable {
         try {
             clientSocket = serverSocket.accept();
         } catch (IOException e) {
-            e.printStackTrace();
+            Common.handleException(e);
         }
     }
 
@@ -50,7 +48,6 @@ public class Server implements Runnable {
         return serverSocket;
     }
 
-    // TODO: do some diffie hell stuff here; need to send challenge, check nonce from client etc
     @Override
     public void run() {
         try {
@@ -91,6 +88,7 @@ public class Server implements Runnable {
             //Truncate Combined key to suit AES
             byte[] sharedKey = diffie.getCombinedKey(diffieParam);
             byte[] sessionKey = Arrays.copyOf(sharedKey, 16);
+
             //Set Session key
             Vpn.getVpnManager().setSessionKey(sessionKey);
 
@@ -98,11 +96,7 @@ public class Server implements Runnable {
             new Thread(new MessageReceiver()).start();
         } catch (Exception e) {
             Vpn.getVpnManager().terminate();
-            e.printStackTrace();
+            Common.handleException(e);
         }
-    }
-
-    public void setClientSocket(Socket clientSocket) {
-        this.clientSocket = clientSocket;
     }
 }

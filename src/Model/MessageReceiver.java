@@ -13,7 +13,6 @@ import java.util.Arrays;
  * Created by karui on 2016-10-03.
  */
 public class MessageReceiver extends Observable implements Runnable {
-    private final int BUFFER_SIZE = 25600;
     private String msgReceived;
 
     public MessageReceiver() {
@@ -44,10 +43,10 @@ public class MessageReceiver extends Observable implements Runnable {
                     updateMsgReceived(plaintextString);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
                 Vpn.getVpnManager().setStatus(Status.Disconnected);
+                System.out.println("Disconnected");
                 Vpn.getVpnManager().terminate();
-                break;
+                System.exit(1);
             }
         }
     }

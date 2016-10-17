@@ -15,17 +15,15 @@ public class MessageSender {
     String textToSend = "";
 
     public MessageSender(String textToSend) {
-        this.textToSend = /* concatanate iv */textToSend;
+        this.textToSend = textToSend;
     }
 
     public void sendText() {
         Status status = Vpn.getVpnManager().getStatus();
 
         if (status != Status.BothConnected) {
-            System.out.println("tell user they need to be connected");
-
-            // comment out this return for testing purposes for now; we need this return in real application
-            //return;
+            System.out.println("No client to send the message to.");
+            return;
         }
         try {
             DataOutputStream writer = Vpn.getVpnManager().getWriter();
@@ -40,13 +38,13 @@ public class MessageSender {
 
             String ciphertextString = DatatypeConverter.printHexBinary(ciphertextIVBytes);
 
-            System.out.println("Sent plaintext: " + textToSend);
-            System.out.println("Sent ciphertext: " + ciphertextString);
+            System.out.println("Plaintext is: " + textToSend);
+            System.out.println("Encrypted message is: " + ciphertextString);
 
             writer.write(ciphertextIVBytes);
         } catch (IOException ex) {
             Vpn.getVpnManager().terminate();
-            ex.printStackTrace();
+            System.exit(1);
         }
     }
 }
