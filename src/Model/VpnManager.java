@@ -78,7 +78,7 @@ public class VpnManager {
         }
     }
 
-    public void initializeClient() {
+    public void initializeClient() throws IOException {
         client = new Client();
         client.setSocket(ip, port);
         status = Status.ClientConnected;

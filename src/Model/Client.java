@@ -78,12 +78,7 @@ public class Client implements Runnable {
         }
     }
 
-    public void setSocket(String ip, int port) {
-        try {
-            clientSocket = new Socket(ip, port);
-        } catch (IOException e) {
-            System.out.println("Failed to connect to server");
-            System.exit(1);
-        }
+    public void setSocket(String ip, int port) throws IOException {
+        clientSocket = new Socket(ip, port);
     }
 }

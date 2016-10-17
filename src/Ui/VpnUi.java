@@ -7,6 +7,7 @@ import Model.Vpn;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 /**
  * Created by karui on 2016-10-03.
@@ -169,7 +170,12 @@ public class VpnUi extends Observer {
         JButton button = new JButton("Continue");
         button.addActionListener(e -> {
                 Vpn.getVpnManager().receiveIp(textField.getText());
-                Vpn.getVpnManager().initializeClient();
+                try {
+                    Vpn.getVpnManager().initializeClient();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(applicationFrame, "Please wait for the server to connect first.");
+                    System.exit(1);
+                }
                 ipPanel.setVisible(false);
                 messagePanel.setVisible(true);
         });
