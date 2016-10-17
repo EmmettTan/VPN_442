@@ -33,9 +33,7 @@ public class Common {
             Vpn.getVpnManager().initIvManager();
             return Vpn.getVpnManager().getMyNonce();
         } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println(GENERIC_ERROR_MESSAGE + e.getMessage());
-            System.exit(1);
+            Common.handleException(e);
             return null;
         }
     }
