@@ -12,7 +12,7 @@ public abstract class Observable {
     List<Observer> observers = new ArrayList<>();
 
     public String getMessage() {
-        return "getMessage not implemented by this class";
+        throw new UnsupportedOperationException();
     };
 
     public void addObserver(Observer observer) {
