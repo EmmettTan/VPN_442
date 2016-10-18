@@ -3,6 +3,8 @@ package Ui;
 import Model.MessageSender;
 import Model.Observer;
 import Model.Vpn;
+import Ui.UpdateNames;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +29,7 @@ public class VpnUi extends Observer {
     private JPanel ipPanel;
     private JPanel messagePanel;
     private JTextArea msgsReceived;
+    private JLabel statusPanel;
     private JScrollPane scrollPane;
 
     private VpnUi() {}
@@ -68,6 +71,7 @@ public class VpnUi extends Observer {
         createLeftAlignedPanel(identityPanel);
         createLeftAlignedPanel(messagePanel);
         createLeftAlignedPanel(ipPanel);
+
 
         // portNumPanel is the first panel to be displayed to the user
         portNumPanel.setVisible(true);
@@ -189,8 +193,16 @@ public class VpnUi extends Observer {
         msgsReceived = new JTextArea();
         msgsReceived.setEditable(false);
         msgsReceived.setLineWrap(true);
+        JLabel statusTitle = new JLabel();
+        statusTitle.setSize(1,1);
+        statusTitle.setFont(new Font("Helvetica", Font.PLAIN, 24));
+        statusTitle.setText("Connection Status:");
+        statusPanel = new JLabel();
+        statusPanel.setSize(1,1);
+        statusPanel.setFont(new Font("Helvetica", Font.PLAIN, 24));
+        statusPanel.setText("Uninitialized");
         scrollPane = new JScrollPane(msgsReceived);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT / 2));
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT / 6));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         JTextField textField = new JTextField(MESSAGE_LEN);
@@ -207,13 +219,27 @@ public class VpnUi extends Observer {
             }
         });
 
+        messagePanel.add(statusTitle);
+        messagePanel.add(statusPanel);
         messagePanel.add(scrollPane);
         messagePanel.add(textField);
         messagePanel.add(button);
+
+
     }
 
     @Override
-    public void update() {
-        msgsReceived.append(observable.getMessage() + "\n");
+    public void update(String updatedValue, UpdateNames updateName) {
+        switch (updateName) {
+            case MESSAGE:
+                msgsReceived.append(observable.getMessage() + "\n");
+                break;
+            case STATUS :
+                statusPanel.setText(updatedValue);
+                break;
+            default:
+                break;
+        }
+
     }
 }

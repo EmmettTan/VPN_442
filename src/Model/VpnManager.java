@@ -3,6 +3,7 @@ package Model;
 import Helper.Common;
 import Helper.Status;
 import Helper.IVManager;
+import Ui.UpdateNames;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
@@ -12,7 +13,7 @@ import java.security.SecureRandom;
 /**
  * Created by karui on 2016-10-03.
  */
-public class VpnManager {
+public class VpnManager extends Observable {
     private final String CIPHER_TYPE = "AES";
     private final String SERVER_IDENTITY = "SRVR";
     private final String CLIENT_IDENTITY = "CLNT";
@@ -40,6 +41,7 @@ public class VpnManager {
         myNonce = null;
         clientNonce = null;
         ip = "";
+        addObserver(Vpn.getVpnUi());
     }
 
     public static VpnManager getInstance() {
@@ -136,6 +138,7 @@ public class VpnManager {
 
     public void setStatus(Status status) {
         this.status = status;
+        notifyAllObservers(status.toString(), UpdateNames.STATUS);
     }
 
     public void setSessionKey(byte[] key) {
