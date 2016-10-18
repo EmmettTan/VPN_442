@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.security.MessageDigest;
 
 /**
  * Created by karui on 2016-10-03.
@@ -90,7 +91,9 @@ public class Server implements Runnable {
 
             //Truncate Combined key to suit AES
             byte[] sharedKey = diffie.getCombinedKey(diffieParam);
-            byte[] sessionKey = Arrays.copyOf(sharedKey, 16);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedKey = digest.digest(sharedKey);
+            byte[] sessionKey = Arrays.copyOf(hashedKey, 16);
             //Set Session key
             Vpn.getVpnManager().setSessionKey(sessionKey);
 
