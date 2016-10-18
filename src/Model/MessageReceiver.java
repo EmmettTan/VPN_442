@@ -3,6 +3,8 @@ package Model;
 import Helper.Aes;
 import Helper.Status;
 
+import Ui.UpdateNames;
+
 import javax.crypto.*;
 import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
@@ -53,7 +55,7 @@ public class MessageReceiver extends Observable implements Runnable {
 
     private void updateMsgReceived(String plaintext) {
         msgReceived = plaintext;
-        notifyAllObservers();
+        notifyAllObservers(plaintext, UpdateNames.MESSAGE);
     }
 
     @Override

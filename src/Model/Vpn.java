@@ -14,8 +14,8 @@ public class Vpn {
     private static VpnUi vpnUi;
 
     private Vpn() {
-        vpnManager = VpnManager.getInstance();
         vpnUi = VpnUi.getInstance();
+        vpnManager = VpnManager.getInstance();
     }
 
     public static VpnManager getVpnManager() {

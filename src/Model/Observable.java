@@ -1,5 +1,7 @@
 package Model;
 
+import Ui.UpdateNames;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,16 +11,18 @@ import java.util.List;
 public abstract class Observable {
     List<Observer> observers = new ArrayList<>();
 
-    public abstract String getMessage();
+    public String getMessage() {
+        return "getMessage not implemented by this class";
+    };
 
     public void addObserver(Observer observer) {
         observers.add(observer);
         observer.setObservable(this);
     }
 
-    public void notifyAllObservers(){
+    public void notifyAllObservers(String updatedValue, UpdateNames updateName){
         for (Observer observer : observers) {
-            observer.update();
+            observer.update(updatedValue, updateName);
         }
     }
 }
