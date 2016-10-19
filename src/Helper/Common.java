@@ -74,7 +74,7 @@ public class Common {
 
     public static void handleException(Exception e) {
         Vpn.getVpnManager().terminate();
-        e.printStackTrace();
+        //e.printStackTrace();
         System.err.println(GENERIC_ERROR_MESSAGE + e.getMessage());
         System.exit(1);
     }
