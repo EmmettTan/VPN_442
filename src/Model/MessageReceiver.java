@@ -1,6 +1,7 @@
 package Model;
 
 import Helper.Aes;
+import Helper.Common;
 import Helper.Status;
 
 import Ui.UpdateNames;
@@ -35,12 +36,12 @@ public class MessageReceiver extends Observable implements Runnable {
                     byte[] ciphertextBytes = Arrays.copyOfRange(receivedBytes, 16, receivedBytes.length);
                     Vpn.getVpnManager().getIvManager().setIV(senderIVBytes);
 
-                    String ciphertextString = DatatypeConverter.printHexBinary(ciphertextBytes);
-
                     Cipher cipher = Aes.getAesCipher(Cipher.DECRYPT_MODE, Vpn.getVpnManager().getSessionKey());
                     String plaintextString = Aes.decrypt(ciphertextBytes, cipher);
 
-                    System.out.println("Received encrypted IV + ciphertext: " + ciphertextString);
+                    System.out.println("Received IV + ciphertext: " + Common.bytesToHexString(receivedBytes));
+                    System.out.println("Parsed IV: " + Common.bytesToHexString(senderIVBytes));
+                    System.out.println("Parsed ciphertext: " + Common.bytesToHexString(ciphertextBytes));
                     System.out.println("Received plaintext: " + plaintextString);
                     updateMsgReceived(plaintextString);
                 }

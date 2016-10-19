@@ -64,12 +64,12 @@ public class Client implements Runnable {
             Diffie diffie = new Diffie();
 
             //Truncates Combined key to suit AES
-            byte[] sharedKey = diffie.getCombinedKey(diffieParam);
+            byte[] diffieCombinedKey = diffie.getCombinedKey(diffieParam);
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashKey = digest.digest(sharedKey);
+            byte[] hashKey = digest.digest(diffieCombinedKey);
             byte[] sessionKey = Arrays.copyOf(hashKey, 16);
-            System.out.println("Generated session key: " + Common.processDiffieResponse(sessionKey));
+            System.out.println("Generated session key: " + Common.bytesToHexString(sessionKey));
 
             //Sets session key
             Vpn.getVpnManager().setSessionKey(sessionKey);

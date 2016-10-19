@@ -1,6 +1,7 @@
 package Model;
 
 import Helper.Aes;
+import Helper.Common;
 import Helper.Status;
 
 import javax.crypto.Cipher;
@@ -36,10 +37,10 @@ public class MessageSender {
             System.arraycopy(ivByteArray, 0, ciphertextIVBytes, 0, ivByteArray.length);
             System.arraycopy(ciphertextBytes, 0, ciphertextIVBytes, ivByteArray.length, ciphertextBytes.length);
 
-            String ciphertextString = DatatypeConverter.printHexBinary(ciphertextIVBytes);
-
             System.out.println("Plaintext is: " + textToSend);
-            System.out.println("Encrypted message is: " + ciphertextString);
+            System.out.println("Ciphertext is: " + Common.bytesToHexString(ciphertextBytes));
+            System.out.println("IV is: " + Common.bytesToHexString(ivByteArray));
+            System.out.println("Sent message: " + Common.bytesToHexString(ciphertextIVBytes));
 
             writer.write(ciphertextIVBytes);
         } catch (IOException ex) {
