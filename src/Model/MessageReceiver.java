@@ -40,7 +40,7 @@ public class MessageReceiver extends Observable implements Runnable {
                     Cipher cipher = Aes.getAesCipher(Cipher.DECRYPT_MODE, Vpn.getVpnManager().getSessionKey());
                     String plaintextString = Aes.decrypt(ciphertextBytes, cipher);
 
-                    System.out.println("Received ciphertext: " + ciphertextString);
+                    System.out.println("Received encrypted IV + ciphertext: " + ciphertextString);
                     System.out.println("Received plaintext: " + plaintextString);
                     updateMsgReceived(plaintextString);
                 }
