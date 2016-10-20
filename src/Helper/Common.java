@@ -2,6 +2,7 @@ package Helper;
 
 import Model.Vpn;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -44,18 +45,21 @@ public class Common {
         // check my nonce
         byte[] myNonceFromResponse = new byte[Common.NONCE_LENGTH];
         System.arraycopy(decrypted, 0, myNonceFromResponse, 0, Common.NONCE_LENGTH);
+        System.out.println("Received nonce: " + Common.bytesToHexString(myNonceFromResponse));
         Common.validateByteEquality(myNonceFromResponse, Vpn.getVpnManager().getMyNonce());
 
         // check identity
-        byte[] serverIdentityBytes = new byte[Common.IDENTITY_LENGTH];
-        System.arraycopy(decrypted, Common.NONCE_LENGTH, serverIdentityBytes, 0, Common.IDENTITY_LENGTH);
-        Common.validateByteEquality(serverIdentityBytes, Vpn.getVpnManager().getOppositeIdentity());
+        byte[] identityBytes = new byte[Common.IDENTITY_LENGTH];
+        System.arraycopy(decrypted, Common.NONCE_LENGTH, identityBytes, 0, Common.IDENTITY_LENGTH);
+        System.out.println("Received literal string: " + Common.bytesToHexString(identityBytes));
+        Common.validateByteEquality(identityBytes, Vpn.getVpnManager().getOppositeIdentity());
 
         // compute DH
         int startOfDiffieBytes = Common.NONCE_LENGTH + Common.IDENTITY_LENGTH;
         int diffieBytesFromServerLen = decrypted.length - startOfDiffieBytes;
         byte[] diffieBytesFromServer = new byte[diffieBytesFromServerLen];
         System.arraycopy(decrypted, startOfDiffieBytes, diffieBytesFromServer, 0, diffieBytesFromServerLen);
+        System.out.println("Received diffie parameters: " + Common.bytesToHexString(diffieBytesFromServer));
         BigInteger diffieInt = new BigInteger(diffieBytesFromServer);
         return diffieInt;
     }
@@ -73,5 +77,9 @@ public class Common {
         //e.printStackTrace();
         System.err.println(GENERIC_ERROR_MESSAGE + e.getMessage());
         System.exit(1);
+    }
+
+    public static String bytesToHexString(byte[] bytes) {
+        return DatatypeConverter.printHexBinary(bytes);
     }
 }
